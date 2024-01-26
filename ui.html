@@ -1,0 +1,70 @@
+
+<h2>Slide Transitions</h2>
+
+<div id="content"></div>
+
+<script>
+const placeholder = `Either:<br>
+- select a node in a frame to view or add transitions<br>
+- select frames to export as a slide deck with transitions`
+
+document.getElementById('content').innerHTML = placeholder
+
+function getTransitionsText(nodeNames) {
+  return nodeNames.length === 0 ? "None" : nodeNames.map(n => `- ${n}`).join('<br>')
+}
+
+function addTransitionsInfo(frameName, frameId, nodeNames, newNodeName) {
+
+  const buttons = `<button id="addTransition">Add Transition</button>`
+
+  const frameNameText = `Frame Name: ${event.data.pluginMessage.frameName}`
+
+  const transitionsText = getTransitionsText(nodeNames)
+
+  document.getElementById('content').innerHTML = `${frameNameText}<br><br>Transitions:<br><span id="transitions">${transitionsText}</span><br><br>${buttons}`
+
+  document.getElementById('addTransition').onclick = () => {
+    const newNodeNames = [...nodeNames, newNodeName]
+    document.getElementById('transitions').innerHTML = getTransitionsText(newNodeNames)
+    parent.postMessage({pluginMessage: { type: 'added-transition', frameId, nodeNames: newNodeNames }}, "*")
+  }
+}
+
+onmessage = (event) => {
+  console.log("received this")
+  console.log(event.data.pluginMessage)
+  if (event.data.pluginMessage.type === 'placeholder') {
+    document.getElementById('content').innerHTML = placeholder
+  }
+  if (event.data.pluginMessage.type === 'transitions') {
+    addTransitionsInfo(event.data.pluginMessage.frameName, event.data.pluginMessage.frameId, event.data.pluginMessage.nodeNames, event.data.pluginMessage.newNodeName)
+  }
+  if (event.data.pluginMessage.type === 'can_run') {
+    document.getElementById('content').innerHTML = `<button id='run'>Run</button>`
+    document.getElementById('run').onclick = () => {
+      parent.postMessage({pluginMessage: { type: 'run' }}, "*")
+    }
+  }
+  // document.getElementById('content').innerHTML = event.data.pluginMessage
+}
+
+</script>
+
+<!-- <h2>Rectangle Creator</h2>
+<p>Count: <input id="count" value="5"></p>
+<button id="create">Create</button>
+<button id="cancel">Cancel</button>
+<script>
+
+document.getElementById('create').onclick = () => {
+  const textbox = document.getElementById('count');
+  const count = parseInt(textbox.value, 10);
+  parent.postMessage({ pluginMessage: { type: 'create-rectangles', count } }, '*')
+}
+
+document.getElementById('cancel').onclick = () => {
+  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+}
+
+</script> -->

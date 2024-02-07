@@ -16,7 +16,7 @@ function getTransitionsText(nodeNames) {
 
 function addTransitionsInfo(frameName, frameId, nodeNames, newNodeName) {
 
-  const buttons = `<button id="addTransition">Add Transition</button>`
+  const buttons = `<button id="addTransition">Add Transition</button><button style="margin-left: 10px" id="deleteTransitions">Delete Transitions</button>`
 
   const frameNameText = `Frame Name: ${event.data.pluginMessage.frameName}`
 
@@ -28,6 +28,11 @@ function addTransitionsInfo(frameName, frameId, nodeNames, newNodeName) {
     const newNodeNames = [...nodeNames, newNodeName]
     document.getElementById('transitions').innerHTML = getTransitionsText(newNodeNames)
     parent.postMessage({pluginMessage: { type: 'added-transition', frameId, nodeNames: newNodeNames }}, "*")
+  }
+
+  document.getElementById('deleteTransitions').onclick = () => {
+    document.getElementById('transitions').innerHTML = getTransitionsText([])
+    parent.postMessage({pluginMessage: { type: 'delete-transitions', frameId }}, "*")
   }
 }
 

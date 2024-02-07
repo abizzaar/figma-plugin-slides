@@ -86,14 +86,26 @@ figma.ui.onmessage = msg => {
     frame.setPluginData("transitions", JSON.stringify(msg.nodeNames))
   }
 
+  if (msg.type === 'delete-transitions') {
+    const frame = figma.getNodeById(msg.frameId)
+    if (!frame) {
+      return
+    }
+    frame.setPluginData("transitions", "[]")
+  }
+
   if (msg.type === 'run') {
-    const selections = figma.currentPage.selection
-    if (selections.some(s => s.type !== "FRAME")) {
+    const selectionsOriginal = figma.currentPage.selection
+    if (selectionsOriginal.some(s => s.type !== "FRAME")) {
       return
     }
 
 
     let counter = 0
+
+    const selections = [...selectionsOriginal]
+    selections.sort((a, b) => a.name > b.name ? 1 : -1)
+    
 
     for (let i = 0; i < selections.length; i++) {
       const frame = selections[i] as FrameNode
@@ -109,8 +121,8 @@ figma.ui.onmessage = msg => {
           node?.remove()
         }
         
-        clone.x = selections[0].x + (counter * (100 + selections[0].width))
-        clone.y = selections[0].y + (selections[0].height + 100)
+        clone.x = selections[0].x + (counter * (400 + selections[0].width))
+        clone.y = selections[0].y + (selections[0].height + 1600)
   
         clone.setPluginData("transitions", "[]")
         counter += 1
